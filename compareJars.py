@@ -2,7 +2,6 @@ import zipfile
 import os
 import filecmp
 
-
 def extract_jar(jar_path, extract_to):
     with zipfile.ZipFile(jar_path, 'r') as jar:
         jar.extractall(extract_to)
