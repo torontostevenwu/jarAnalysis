@@ -30,12 +30,12 @@ def compare_directories(dir1, dir2):
 
     return added_files, removed_files, modified_files
 
-st.title("JAR File Comparison Tool")
+st.title("JAR/ZIP File Comparison Tool")
 
-uploaded_file1 = st.file_uploader("Upload first JAR file", type="jar")
-uploaded_file2 = st.file_uploader("Upload second JAR file", type="jar")
+uploaded_file1 = st.file_uploader("Upload first JAR/ZIP file", type=["jar", "zip"])
+uploaded_file2 = st.file_uploader("Upload second JAR/ZIP file", type=["jar", "zip"])
 
-compare_button = st.button("Compare JARs")
+compare_button = st.button("Compare JARs/ZIPs")
 
 if compare_button:
     if uploaded_file1 is not None and uploaded_file2 is not None:
@@ -68,18 +68,18 @@ if compare_button:
             # Display results
             st.subheader("Comparison Results:")
             if not added_files and not removed_files and not modified_files:
-                st.success("No differences found between the JAR files.")
+                st.success("No differences found between the JAR/ZIP files.")
             else:
                 if added_files:
-                    st.write("Files added in the second JAR (compared to the first):")
+                    st.write("Files added in the second JAR/ZIP (compared to the first):")
                     for f in added_files:
                         st.markdown(f"- `{f}`")
                 if removed_files:
-                    st.write("Files removed in the second JAR (compared to the first):")
+                    st.write("Files removed in the second JAR/ZIP (compared to the first):")
                     for f in removed_files:
                         st.markdown(f"- `{f}`")
                 if modified_files:
-                    st.write("Files modified between the JARs:")
+                    st.write("Files modified between the JARs/ZIPs:")
                     for f in modified_files:
                         st.markdown(f"- `{f}`")
         
@@ -92,4 +92,4 @@ if compare_button:
             shutil.rmtree(temp_dir2)
             
     else:
-        st.warning("Please upload both JAR files before comparing.")
+        st.warning("Please upload both JAR/ZIP files before comparing.")
