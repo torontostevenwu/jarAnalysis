@@ -1,14 +1,18 @@
 import zipfile
 import os
 import filecmp
-
-# update at May 26th, 2025
+import argparse
+import json
+import shutil
+import tempfile
 
 def extract_jar(jar_path, extract_to):
+    """Extracts a JAR/ZIP file to a specified directory."""
     with zipfile.ZipFile(jar_path, 'r') as jar:
         jar.extractall(extract_to)
 
 def compare_directories(dir1, dir2):
+    """Compares two directories and returns added, removed, and modified files."""
     added_files = []
     removed_files = []
     modified_files = []
@@ -29,19 +33,58 @@ def compare_directories(dir1, dir2):
 
     return added_files, removed_files, modified_files
 
-# Paths to the JAR files
-jar1 = './j2eeOld.jar'
-jar2 = './j2eeNew.jar'
+def main():
+    parser = argparse.ArgumentParser(description="Compare two JAR or ZIP files.")
+    parser.add_argument("jar1", help="Path to the first JAR/ZIP file")
+    parser.add_argument("jar2", help="Path to the second JAR/ZIP file")
+    parser.add_argument("--output", help="Path to save the comparison results (JSON format)")
+    
+    args = parser.parse_args()
 
+    # Create temporary directories
+    temp_dir1 = tempfile.mkdtemp()
+    temp_dir2 = tempfile.mkdtemp()
 
-# Extract contents of the JAR files
-extract_jar(jar1, 'jar1_contents')
-extract_jar(jar2, 'jar2_contents')
+    try:
+        print(f"Comparing {args.jar1} and {args.jar2}...")
+        
+        extract_jar(args.jar1, temp_dir1)
+        extract_jar(args.jar2, temp_dir2)
 
-# Compare the directories
-added_files, removed_files, modified_files = compare_directories('jar1_contents', 'jar2_contents')
+        added, removed, modified = compare_directories(temp_dir1, temp_dir2)
 
-print("Added files:", added_files)
-print("Removed files:", removed_files)
-print("Modified files:", modified_files)
+        results = {
+            "added_files": added,
+            "removed_files": removed,
+            "modified_files": modified
+        }
+
+        print("\nComparison Results:")
+        print(f"Added files: {len(added)}")
+        for f in added:
+            print(f"  + {f}")
+            
+        print(f"Removed files: {len(removed)}")
+        for f in removed:
+            print(f"  - {f}")
+            
+        print(f"Modified files: {len(modified)}")
+        for f in modified:
+            print(f"  * {f}")
+
+        if args.output:
+            with open(args.output, 'w') as f:
+                json.dump(results, f, indent=4)
+            print(f"\nResults saved to {args.output}")
+
+    except Exception as e:
+        print(f"Error: {e}")
+    
+    finally:
+        # Cleanup
+        shutil.rmtree(temp_dir1)
+        shutil.rmtree(temp_dir2)
+
+if __name__ == "__main__":
+    main()
 
